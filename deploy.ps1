@@ -313,7 +313,7 @@ $statichostname = ([System.Uri]$staticweburl).Host
 az afd origin create --profile-name $frontDoorName --resource-group $resourceGroupName --origin-group-name "NVCLPreparedDownloads-og" --name "NVCLPreparedDownloadsStorage" --host-name $statichostname --origin-host-header $publichostname --https-port 443 --enabled Enabled
 
 
-az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName  --endpoint-name "nvclNode" --name "NVCLDataServicesRoute" --origin-group "NVCLDataServices-og" --patterns-to-match "/NVCLDataServices/*" --supported-protocols Http Https --forwarding-protocol HttpOnly --https-redirect Enabled --link-to-default-domain Enabled
+az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName  --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLDataServicesRoute" --origin-group "NVCLDataServices-og" --patterns-to-match "/NVCLDataServices/*" --supported-protocols Http Https --forwarding-protocol HttpOnly --https-redirect Enabled --link-to-default-domain Enabled
 
 
-az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName --endpoint-name "nvclNode" --name "NVCLPreparedDownloadsRoute" --origin-group "NVCLPreparedDownloads-og" --origin-path "/" --patterns-to-match "/NVCLPreparedDownloads/*" --supported-protocols Http Https --forwarding-protocol MatchRequest --https-redirect Enabled --link-to-default-domain Enabled 
+az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLPreparedDownloadsRoute" --origin-group "NVCLPreparedDownloads-og" --origin-path "/" --patterns-to-match "/NVCLPreparedDownloads/*" --supported-protocols Http Https --forwarding-protocol MatchRequest --https-redirect Enabled --link-to-default-domain Enabled 

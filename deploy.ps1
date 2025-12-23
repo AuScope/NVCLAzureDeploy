@@ -242,28 +242,33 @@ Write-Host "Attempting to install cholatey"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString(\"https://community.chocolatey.org/install.ps1\"))'
 Write-Host "Completed: Install cholatey"
 
+Write-Host "Scheduling weekly Amazon Corretto updates"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmName --command-id RunPowerShellScript --scripts 'schtasks /Create /TN UpdateCorrettoWeekly /SC WEEKLY /D MON /ST 03:00 /RU SYSTEM /RL HIGHEST /F /TR \"C:\ProgramData\chocolatey\bin\choco.exe upgrade corretto17jdk -y --no-progress\"'
+Write-Host "Completed: Scheduling weekly Amazon Corretto updates"
 
+Write-Host "Running scheduled Amazon Corretto update task to ensure Corretto is installed"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmName --command-id RunPowerShellScript --scripts 'schtasks /Run /TN UpdateCorrettoWeekly'
-
-Write-Host "Attempting to install Amazon Corretto"
-az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts 'C:\ProgramData\chocolatey\bin\choco.exe install corretto17jdk -y --no-progress'
-Write-Host "Completed: install Amazon Corretto"
+Write-Host "Completed: Running scheduled Amazon Corretto update task to ensure Corretto is installed"
 
 Write-Host "Attempting to install NVCLDataServices"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts "Invoke-WebRequest -Uri ""$NVCLDSInstallerLocation"" -OutFile nvclds.exe; Start-Process -FilePath .\nvclds.exe -ArgumentList ""/S"" -Wait -NoNewWindow"
 Write-Host "Completed: install NVCLDataServices"
 
+Write-Host "Attempting to install VC++ 2015-2019 Redistributables"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts "Invoke-WebRequest -Uri ""https://aka.ms/vc14/vc_redist.x86.exe"" -OutFile vc_redist.x86.exe; Start-Process -FilePath .\vc_redist.x86.exe -ArgumentList ""/quiet"" -Wait -NoNewWindow"
+Write-Host "Completed: install VC++ 2015-2019 Redistributables"
 
+Write-Host "Attempting to install VC++ 2015-2019 Redistributables (x64)"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts "Invoke-WebRequest -Uri ""https://aka.ms/vc14/vc_redist.x64.exe"" -OutFile vc_redist.x64.exe; Start-Process -FilePath .\vc_redist.x64.exe -ArgumentList ""/quiet"" -Wait -NoNewWindow"
+Write-Host "Completed: install VC++ 2015-2019 Redistributables (x64)"
 
-
+Write-Host "Attempting to install MS OLE DB Driver for SQL Server"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts "`$ProgressPreference = 'SilentlyContinue';`$msiPath = Join-Path `$env:TEMP ""msoledbsql.msi""; Invoke-WebRequest -Uri ""https://go.microsoft.com/fwlink/?linkid=2318101"" -OutFile `$msiPath ; Start-Process msiexec.exe -ArgumentList @( '/i', `$msiPath, '/quiet', '/norestart' , '/L*v', 'c:\windows\temp\inslog.log' ,'IACCEPTMSOLEDBSQLLICENSETERMS=YES' ) -Wait -NoNewWindow"
+Write-Host "Completed: install MS OLE DB Driver for SQL Server"
 
-
+Write-Host "Updating firewall rule to allow TCP 8080"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts 'New-NetFirewallRule -DisplayName ""Allow TCP 8080"" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow'
-
+Write-Host "Completed: Updating firewall rule to allow TCP 8080"
 
 
 function Push-FileToAzureVMUsingRunCommand {

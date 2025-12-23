@@ -166,7 +166,7 @@ if ($exists) {
 
 } else {
     Write-Host "Table does not exist, assuming database hasnt been imported. attempting import now"
-    az sql db import --name "NVCL" --server $DBserver --resource-group $resourceGroupName --storage-uri "https://nvcldb.blob.core.windows.net/nvcldb/NVCL-2022-6-2-15-53.bacpac" --storage-key-type "SharedAccessKey" --storage-key "nokey" -p $databaseAdministratorPassword -u $databaseAdministratorUsername 
+    az sql db import --name "NVCL" --server $DBserver --resource-group $resourceGroupName --storage-uri "https://nvcldb.blob.core.windows.net/nvcldb/NVCL-2025-12-23.bacpac" --storage-key-type "SharedAccessKey" --storage-key "nokey" -p $databaseAdministratorPassword -u $databaseAdministratorUsername 
     Write-Host "Completed: Importing database"
 }
 

@@ -144,7 +144,6 @@
         "uniqueDatabaseServerName": "[concat(parameters('azureDBServerPrefix'), uniqueString(resourceGroup().id))]",
         "uniquenvclDataServiceAppName": "[concat(parameters('nvclDataServiceAppName'), uniqueString(resourceGroup().id))]",
         "vmNsgName": "[format('{0}-vmSubnet-nsg', parameters('vnetName'))]",
-        "peNsgName": "[format('{0}-peSubnet-nsg', parameters('vnetName'))]",
         "nicName": "[format('{0}-nic', parameters('VMName'))]",
         "PIPName": "[format('pip-{0}', parameters('VMName'))]"
     },
@@ -170,23 +169,6 @@
                         }
                     },
                     {
-                        "name": "RDPinbound",
-                        "properties": {
-                            "protocol": "TCP",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "3389",
-                            "sourceAddressPrefix": "VirtualNetwork",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 1000,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [],
-                            "destinationPortRanges": [],
-                            "sourceAddressPrefixes": [],
-                            "destinationAddressPrefixes": []
-                        }
-                    },
-                    {
                         "name": "AzureFontDoor",
                         "properties": {
                             "protocol": "TCP",
@@ -207,22 +189,12 @@
             }
         },
         {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2024-03-01",
-            "name": "[variables('peNsgName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": []
-            }
-        },
-        {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2024-03-01",
             "name": "[parameters('vnetName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('peNsgName'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]"
             ],
             "properties": {
                 "addressSpace": {
@@ -237,15 +209,6 @@
                             "addressPrefix": "10.10.0.0/24",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmNsgName'))]"
-                            }
-                        }
-                    },
-                    {
-                        "name": "peSubnet",
-                        "properties": {
-                            "addressPrefix": "10.10.1.0/24",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('peNsgName'))]"
                             }
                         }
                     }
@@ -594,54 +557,7 @@
                 "registrationEnabled": false
             }
         },
-        {
-            "type": "Microsoft.Network/privateEndpoints",
-            "apiVersion": "2024-03-01",
-            "name": "[format('{0}-sql-pe', variables('uniqueDatabaseServerName'))]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', variables('uniqueDatabaseServerName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-                "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.database.windows.net')]",
-                "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', 'privatelink.database.windows.net', format('{0}-link', parameters('vnetName')))]"
-            ],
-            "properties": {
-                "subnet": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), 'peSubnet')]"
-                },
-                "privateLinkServiceConnections": [
-                    {
-                        "name": "sqlServer",
-                        "properties": {
-                            "privateLinkServiceId": "[resourceId('Microsoft.Sql/servers', variables('uniqueDatabaseServerName'))]",
-                            "groupIds": [
-                                "sqlServer"
-                            ],
-                            "requestMessage": "Private access to Azure SQL"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-            "apiVersion": "2024-03-01",
-            "name": "[format('{0}/sqldns', format('{0}-sql-pe',  variables('uniqueDatabaseServerName')))]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-sql-pe',  variables('uniqueDatabaseServerName')))]"
-            ],
-            "properties": {
-                "privateDnsZoneConfigs": [
-                    {
-                        "name": "sqldnsconfig",
-                        "properties": {
-                            "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.database.windows.net')]"
-                        }
-                    }
-                ]
-            }
-        },
-        {
+         {
             "type": "Microsoft.Cdn/profiles",
             "apiVersion": "2025-04-15",
             "name": "[parameters('frontDoorName')]",

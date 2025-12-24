@@ -322,7 +322,7 @@ az afd origin create --profile-name $frontDoorName --resource-group $resourceGro
 $staticweburl = $(az storage account show --name $storageAccountName --resource-group $resourceGroupName --query "primaryEndpoints.web" -o tsv)
 $statichostname = ([System.Uri]$staticweburl).Host
 
-az afd origin create --profile-name $frontDoorName --resource-group $resourceGroupName --origin-group-name "NVCLPreparedDownloads-og" --name "NVCLPreparedDownloadsStorage" --host-name $statichostname --origin-host-header $publichostname --https-port 443 --enabled Enabled
+az afd origin create --profile-name $frontDoorName --resource-group $resourceGroupName --origin-group-name "NVCLPreparedDownloads-og" --name "NVCLPreparedDownloadsStorage" --host-name $statichostname --origin-host-header $statichostname --https-port 443 --enabled Enabled
 
 
 az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName  --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLDataServicesRoute" --origin-group "NVCLDataServices-og" --patterns-to-match "/NVCLDataServices/*" --supported-protocols Http Https --forwarding-protocol HttpOnly --https-redirect Enabled --link-to-default-domain Enabled

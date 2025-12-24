@@ -277,6 +277,9 @@ Write-Host "Updating firewall rule to allow TCP 8080"
 az vm run-command invoke --resource-group $resourceGroupName --name $vmname --command-id RunPowerShellScript --scripts 'New-NetFirewallRule -DisplayName ""Allow TCP 8080"" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow'
 Write-Host "Completed: Updating firewall rule to allow TCP 8080"
 
+Write-Host "Installing Azure Monitor Agent on VM"
+az vm extension set --name AzureMonitorWindowsAgent --publisher Microsoft.Azure.Monitor --vm-name $vmName --resource-group $resourceGroupName --enable-auto-upgrade true
+Write-Host "Completed: Installing Azure Monitor Agent on VM"
 
 function Push-FileToAzureVMUsingRunCommand {
     param (

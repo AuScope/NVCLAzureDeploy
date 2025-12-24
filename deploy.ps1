@@ -329,3 +329,23 @@ az afd route create --resource-group $resourceGroupName --profile-name $frontDoo
 
 
 az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLPreparedDownloadsRoute" --origin-group "NVCLPreparedDownloads-og" --origin-path "/" --patterns-to-match "/NVCLPreparedDownloads/*" --supported-protocols Http Https --forwarding-protocol MatchRequest --https-redirect Enabled --link-to-default-domain Enabled 
+
+
+$blobResourceId = "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Storage/storageAccounts/$storageAccountName/blobServices/default"
+$workspaceId = "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.OperationalInsights/workspaces/NVCLNode-LogAnalytics"
+
+az monitor diagnostic-settings create --name "storageAccountLogs" --resource $blobResourceId --workspace $workspaceId --logs '[{"category":"StorageRead","enabled":true},{"category":"StorageWrite","enabled":true},{"category":"StorageDelete","enabled":true}]' --metrics '[{"category":"AllMetrics","enabled":true}]'
+
+
+$afdProfileId="/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Cdn/profiles/$frontDoorName"
+
+
+$logsJson = '[{"categoryGroup":"audit","enabled":false,"retentionPolicy":{"days":0,"enabled":false}},{"categoryGroup":"allLogs","enabled":true,"retentionPolicy":{"days":0,"enabled":false}}]'
+
+$metricsJson = '[{"category":"AllMetrics","enabled":true,"retentionPolicy":{"days":0,"enabled":false}}]'
+
+az monitor diagnostic-settings create --name "FrontDoorLogs" --resource $afdProfileId --workspace $workspaceId --logs "$logsJson" --metrics "$metricsJson"
+
+
+
+

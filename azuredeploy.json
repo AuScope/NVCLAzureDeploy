@@ -148,6 +148,28 @@
         "PIPName": "[format('pip-{0}', parameters('VMName'))]"
     },
     "resources": [
+         {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2025-02-01",
+            "name": "NVCLNode-LogAnalytics",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                },
+                "retentionInDays": 90,
+                "features": {
+                    "legacy": 0,
+                    "searchVersion": 1,
+                    "enableLogAccessUsingOnlyResourcePermissions": true
+                },
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2024-03-01",

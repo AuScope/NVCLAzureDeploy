@@ -169,6 +169,24 @@
                         }
                     },
                     {
+                        "name": "RDPinbound",
+                        "properties": {
+                            "description": "allow RDP from Vnet for bastion",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
                         "name": "AzureFontDoor",
                         "properties": {
                             "protocol": "TCP",

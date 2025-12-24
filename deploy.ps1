@@ -235,6 +235,10 @@ Write-Host "assigning 'Storage Blob Data Reader' to VM managed identity"
 az role assignment create --assignee-object-id $identityId --role "Storage Blob Data Reader" --assignee-principal-type ServicePrincipal --scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroupName/providers/Microsoft.Storage/storageAccounts/$storageAccountName"
 Write-Host "Completed: assigning 'Storage Blob Data Reader' to VM managed identity"
 
+
+az storage blob service-properties update --account-name $storageAccountName --static-website --index-document index.html --404-document 404.html
+
+
 az role assignment create --assignee-object-id $identityId --role "Storage Blob Data Contributor" --assignee-principal-type ServicePrincipal --scope "/subscriptions/$subscriptionid/resourceGroups/$resourceGroupName/providers/Microsoft.Storage/storageAccounts/$storageAccountName/blobServices/default/containers/`$web"
 
 

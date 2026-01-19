@@ -317,7 +317,7 @@ $VMIP=$(az network public-ip show --ids $ipid --query "ipAddress" -o tsv)
 az afd origin-group create --resource-group $resourceGroupName --profile-name $frontDoorName --name "NVCLDataServices-og" --probe-request-type GET --probe-path "/NVCLDataServices/" --probe-interval-in-seconds 30 --probe-protocol "Http" --sample-size 3 --successful-samples-required 3 
 
 
-az afd origin-group create --resource-group $resourceGroupName --profile-name $frontDoorName --name "NVCLPreparedDownloads-og" --probe-request-type GET --probe-path "/" --probe-interval-in-seconds 100 --probe-protocol "Https" --sample-size 3 --successful-samples-required 3 
+az afd origin-group create --resource-group $resourceGroupName --profile-name $frontDoorName --name "NVCLDownloads-og" --probe-request-type GET --probe-path "/" --probe-interval-in-seconds 100 --probe-protocol "Https" --sample-size 3 --successful-samples-required 3 
 
 
 az afd origin create --profile-name $frontDoorName --resource-group $resourceGroupName --origin-group-name "NVCLDataServices-og" --name "NVCLVM" --host-name $VMIP --origin-host-header $publichostname --http-port 8080 --enabled Enabled
@@ -325,13 +325,13 @@ az afd origin create --profile-name $frontDoorName --resource-group $resourceGro
 $staticweburl = $(az storage account show --name $storageAccountName --resource-group $resourceGroupName --query "primaryEndpoints.web" -o tsv)
 $statichostname = ([System.Uri]$staticweburl).Host
 
-az afd origin create --profile-name $frontDoorName --resource-group $resourceGroupName --origin-group-name "NVCLPreparedDownloads-og" --name "NVCLPreparedDownloadsStorage" --host-name $statichostname --origin-host-header $statichostname --https-port 443 --enabled Enabled
+az afd origin create --profile-name $frontDoorName --resource-group $resourceGroupName --origin-group-name "NVCLDownloads-og" --name "NVCLStorage" --host-name $statichostname --origin-host-header $statichostname --https-port 443 --enabled Enabled
 
 
 az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName  --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLDataServicesRoute" --origin-group "NVCLDataServices-og" --patterns-to-match "/NVCLDataServices/*" --supported-protocols Http Https --forwarding-protocol HttpOnly --https-redirect Enabled --link-to-default-domain Enabled
 
 
-az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLPreparedDownloadsRoute" --origin-group "NVCLPreparedDownloads-og" --origin-path "/" --patterns-to-match "/NVCLPreparedDownloads/*" --supported-protocols Http Https --forwarding-protocol MatchRequest --https-redirect Enabled --link-to-default-domain Enabled 
+az afd route create --resource-group $resourceGroupName --profile-name $frontDoorName --endpoint-name "nvclNode" --custom-domains "nvclhostname" --name "NVCLDownloadsRoute" --origin-group "NVCLDownloads-og" --origin-path "/" --patterns-to-match "/*" --supported-protocols Http Https --forwarding-protocol MatchRequest --https-redirect Enabled --link-to-default-domain Enabled 
 
 
 $blobResourceId = "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName/providers/Microsoft.Storage/storageAccounts/$storageAccountName/blobServices/default"

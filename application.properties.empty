@@ -76,4 +76,4 @@ writePrepedDSstoAzureBlobStore=true
 
 maxSpacetoUseinGB=100
 
-PrepedDSsAzureBlobStoreContainerName=$web
+PrepedDSsAzureBlobStoreContainerName=$web/NVCLPreparedDownloads

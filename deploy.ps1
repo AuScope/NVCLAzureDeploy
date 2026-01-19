@@ -27,11 +27,6 @@ if (-not $azAccount) {
     exit 1
 }
 
-# Check application.properties file
-if (-not (Test-Path $apppropertiesfile)) {
-    Write-Error "Application properties file not found: $apppropertiesfile"
-    exit 1
-}
 
 Write-Host "All dependencies verified. Proceeding with deployment..."
 

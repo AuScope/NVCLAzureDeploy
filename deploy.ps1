@@ -1,6 +1,5 @@
 $templateFile = ".\azuredeploy.json"
 $parameterFile = ".\azuredeploy.parameters.json"
-$apppropertiesfile = ".\application.properties"
 $resourceGroupName = "nvclrg"
 $database = "NVCL"
 $NVCLDSInstallerLocation = "https://nvclwebservices.csiro.au/Downloads/NVCLDataServicesInstaller.exe"
@@ -30,6 +29,7 @@ if (-not $azAccount) {
 
 Write-Host "All dependencies verified. Proceeding with deployment..."
 
+$apppropertiesfile = ".\application.properties"
 # prep empty application.properties file
 Copy-Item -Path  ".\application.properties.empty" -Destination $apppropertiesfile -Force
 

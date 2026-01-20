@@ -166,52 +166,11 @@ if ($exists) {
 }
 
 
-Write-Host "Creating database logins, users and assigning roles"
+Write-Host "Creating database user and assigning roles"
 
-Invoke-Sqlcmd -ServerInstance $fqdnserver -Database $database -AccessToken $token -Query "
-IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$vmname')
-    CREATE USER [$vmname] FROM EXTERNAL PROVIDER;
-"
+.\helperscripts\CreateReadOnlyUserInDb.ps1 -ServerFqdn $fqdnserver -Username $nvcldbreadonlyUser -PlainPassword $nvcldbreadonlyPassword
 
-# Add roles for external user
-Invoke-Sqlcmd -ServerInstance $fqdnserver -Database $database -AccessToken $token -Query "
-IF NOT EXISTS (
-    SELECT 1 FROM sys.database_role_members drm
-    JOIN sys.database_principals dp ON drm.member_principal_id = dp.principal_id
-    JOIN sys.database_principals rp ON drm.role_principal_id = rp.principal_id
-    WHERE dp.name = '$vmname' AND rp.name = 'WEBSERVICE'
-)
-EXEC sp_addrolemember N'WEBSERVICE', [$vmname];
-"
-
-Invoke-Sqlcmd -ServerInstance $fqdnserver -Database $database -AccessToken $token -Query "
-IF NOT EXISTS (
-    SELECT 1 FROM sys.database_role_members drm
-    JOIN sys.database_principals dp ON drm.member_principal_id = dp.principal_id
-    JOIN sys.database_principals rp ON drm.role_principal_id = rp.principal_id
-    WHERE dp.name = '$vmname' AND rp.name = 'TSGVIEWER'
-)
-EXEC sp_addrolemember N'TSGVIEWER', [$vmname];
-"
-
-# Create login and user for readonly account
-Invoke-Sqlcmd -ServerInstance $fqdnserver -Database "master" -AccessToken $token -Query "
-IF NOT EXISTS (SELECT * FROM sys.sql_logins WHERE name = '$nvcldbreadonlyUser')
-    CREATE LOGIN [$nvcldbreadonlyUser] WITH PASSWORD = '$nvcldbreadonlyPassword';
-"
-
-Invoke-Sqlcmd -ServerInstance $fqdnserver -Database $database -AccessToken $token -Query "
-IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$nvcldbreadonlyUser')
-    CREATE USER [$nvcldbreadonlyUser] FROM LOGIN [$nvcldbreadonlyUser];
-    GO
-    EXEC sp_addrolemember N'WEBSERVICE', N'$nvcldbreadonlyUser'
-    GO
-    EXEC sp_addrolemember N'TSGVIEWER', N'$nvcldbreadonlyUser'
-    GO
-"
-
-
-Write-Host "Completed: Creating database logins, users and assigning roles"
+Write-Host "Completed: Creating database user and assigning roles"
 
 Write-Host "assigning 'Storage Blob Data Owner' to current user"
 
